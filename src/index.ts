@@ -1,11 +1,21 @@
 import { App } from '@slack/bolt';
 import { isGenericMessageEvent } from './utils/helpers';
+import SlackQueue from './slack_queue'
+
+declare var process: {
+    env: {
+        BOT_TOKEN: string
+        SLACK_APP_TOKEN: string
+    }
+}
 
 const app = new App({
     token: process.env.BOT_TOKEN,
     appToken: process.env.SLACK_APP_TOKEN,
     socketMode: true,
 });
+
+let queue = new SlackQueue();
 
 app.use(async ({ next }) => {
     // TODO: This can be improved in future versions
@@ -32,7 +42,11 @@ app.command('/queue', async ({ command, ack, respond }) => {
 app.action('foo', async ({ body, ack, say }) => {
     // Acknowledge the action
     await ack();
-    await say(`<@${body.user.id}> clicked the button`);
+    queue.add(body.user);
+    await say({
+        blocks: queue.toSlackFormatting()
+    })
+    // await say(`<@${body.user.id}> clicked the button`);
 });
 
 (async () => {
@@ -55,7 +69,7 @@ app.action('foo', async ({ body, ack, say }) => {
                         text: {
                             emoji: true,
                             type: 'plain_text',
-                            text: 'Click Me',
+                            text: 'Join queue',
                         },
                         action_id: 'foo',
                     },

@@ -6,6 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@slack/bolt": "^3.7.0",
+    "@types/node": "^16.10.2",
+    "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "node": "^16.10.0",
     "nodemon": "^2.0.13",

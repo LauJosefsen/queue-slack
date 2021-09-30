@@ -1,4 +1,5 @@
 {
+  "preserveSymlinks": true,
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
