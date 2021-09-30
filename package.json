@@ -1,0 +1,23 @@
+{
+  "name": "queue-slack",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "repository": "https://github.com/LauJosefsen/queue-slack.git",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^3.7.0",
+    "eslint": "^7.32.0",
+    "node": "^16.10.0",
+    "nodemon": "^2.0.13",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "type": "commonjs",
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "scripts": {
+    "dev": "export $(cat .env | xargs) && nodemon ./src/index.ts",
+    "start": "export $(cat .env | xargs) && node --loader ts-node/esm src/index.ts"
+  }
+}
