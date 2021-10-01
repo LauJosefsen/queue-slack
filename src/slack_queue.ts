@@ -3,6 +3,23 @@ import { User } from '@slack/web-api/dist/response/UsersIdentityResponse';
 import Queue from "./queue";
 
 export default class SlackQueue extends Queue<User> {
+    removeUser(user: { id: string; name: string; team_id?: string; } | { id: string; username: string; team_id?: string; } | { id: string; name: string; team_id?: string; } | { id: string; name: string; team_id?: string; }) {
+        let node = this.head;
+
+        if (this.head.getObj().id === user.id) {
+            this.head = this.head.getNext();
+        }
+
+        while (node.getNext() !== null) {
+            if (node.getNext().getObj().id === user.id) {
+                //remove
+                node.setNext(node.getNext().getNext());
+                return;
+            }
+            node = node.getNext();
+        }
+
+    }
     createBlockFromElement(user: User, idx: number): Block | KnownBlock {
         let position = this.getPositionString(idx);
 
@@ -26,9 +43,24 @@ export default class SlackQueue extends Queue<User> {
         }
         return `${idx}`;
     }
-    toSlackFormatting = (): (Block | KnownBlock)[] => {
+    toSlackFormatting = (action?: string): (Block | KnownBlock)[] => {
         let list = this.toList();
-        let blocks: (Block | KnownBlock)[] = [
+        let blocks: (Block | KnownBlock)[] = [];
+
+        if (action) {
+            blocks.push(
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: `${action}`,
+                    },
+                }
+            );
+        }
+
+
+        blocks.push(
             {
                 type: 'section',
                 text: {
@@ -36,10 +68,34 @@ export default class SlackQueue extends Queue<User> {
                     text: `Current queue status`,
                 },
             }
-        ];
+        );
         list.forEach((element, index) => {
             blocks.push(this.createBlockFromElement(element, index + 1))
         });
+
+        blocks.push({
+            type: 'actions',
+            elements: [
+                {
+                    type: 'button',
+                    text: {
+                        emoji: true,
+                        type: 'plain_text',
+                        text: 'Join queue',
+                    },
+                    action_id: 'join-queue',
+                },
+                {
+                    type: 'button',
+                    text: {
+                        emoji: true,
+                        type: 'plain_text',
+                        text: 'Leave queue',
+                    },
+                    action_id: 'leave-queue',
+                }
+            ]
+        })
 
         return blocks;
     }
